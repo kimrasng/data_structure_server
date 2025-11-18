@@ -1,0 +1,9 @@
+# DATA STRUCTURE Project
+
+`.env`
+```env
+DB_ROOT_PASSWORD=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+```
