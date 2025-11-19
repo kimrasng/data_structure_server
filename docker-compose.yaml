@@ -1,13 +1,20 @@
 services:
-  server:
+  ds-server:
     build: .
     ports:
-      - "5000:3000"
+      - "4000:3000"
     command: npm start
     restart: unless-stopped
+    depends_on:
+      - ds-db
+    environment:
+      DB_HOST: ds-db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: DataStructure
 
-  db:
-    image: mysql:latest
+  ds-db:
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: DataStructure
