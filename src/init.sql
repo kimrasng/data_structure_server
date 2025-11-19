@@ -9,6 +9,16 @@ CREATE TABLE devices(
     UNIQUE KEY (id)
 );
 
+CREATE TABLE thresholds(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id INT NOT NULL,
+    safe INT NOT NULL COMMENT "안전 기준",
+    normal INT NOT NULL COMMENT "보통 기준",
+    warning INT NOT NULL COMMENT "경고 기준",
+    danger INT NOT NULL COMMENT "위험 기준",
+    FOREIGN KEY (device_id) REFERENCES devices(id)
+);
+
 CREATE TABLE crowd_data(
     id INT AUTO_INCREMENT PRIMARY KEY,
     device_id INT NOT NULL,
