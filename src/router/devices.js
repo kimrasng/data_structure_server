@@ -4,11 +4,119 @@ const asyncHandler = require('../utils/asyncHandler')
 const pool = require('../utils/db')
 const crypto = require('crypto')
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Threshold:
+ *       type: object
+ *       properties:
+ *         safe:
+ *           type: integer
+ *           description: The headcount threshold considered 'safe'.
+ *           example: 30
+ *         normal:
+ *           type: integer
+ *           description: The headcount threshold considered 'normal'.
+ *           example: 50
+ *         warning:
+ *           type: integer
+ *           description: The headcount threshold considered 'warning'.
+ *           example: 80
+ *         danger:
+ *           type: integer
+ *           description: The headcount threshold considered 'danger'.
+ *           example: 120
+ *     Device:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique identifier for the device.
+ *         device_name:
+ *           type: string
+ *           description: The name of the device.
+ *         location:
+ *           type: string
+ *           description: The physical location of the device.
+ *         url:
+ *           type: string
+ *           description: The unique URL for the device to post data to.
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: The timestamp when the device was registered.
+ *     DeviceWithThreshold:
+ *       allOf:
+ *         - $ref: '#/components/schemas/Device'
+ *         - type: object
+ *           properties:
+ *             threshold:
+ *               $ref: '#/components/schemas/Threshold'
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Devices
+ *   description: API for managing monitoring devices.
+ */
+
+/**
+ * @swagger
+ * /devices:
+ *   get:
+ *     summary: Retrieve a list of all devices
+ *     tags: [Devices]
+ *     responses:
+ *       200:
+ *         description: A list of devices.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Device'
+ */
 router.get('/', asyncHandler(async (req, res) => {
     const [devices] = await pool.query('SELECT * FROM devices')
     res.json(devices)
 }))
 
+/**
+ * @swagger
+ * /devices:
+ *   post:
+ *     summary: Register a new device
+ *     tags: [Devices]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - device_name
+ *               - location
+ *             properties:
+ *               device_name:
+ *                 type: string
+ *                 example: "Main Entrance Camera"
+ *               location:
+ *                 type: string
+ *                 example: "1st Floor, West Wing"
+ *               threshold:
+ *                 $ref: '#/components/schemas/Threshold'
+ *     responses:
+ *       201:
+ *         description: The newly created device.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Device'
+ *       400:
+ *         description: Missing required fields.
+ */
 router.post('/', asyncHandler(async (req, res) => {
     const { device_name, location, threshold } = req.body
 
@@ -40,6 +148,29 @@ router.post('/', asyncHandler(async (req, res) => {
   })
 )
 
+/**
+ * @swagger
+ * /devices/{id}:
+ *   get:
+ *     summary: Get a specific device by ID
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The device ID.
+ *     responses:
+ *       200:
+ *         description: The device data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DeviceWithThreshold'
+ *       404:
+ *         description: Device not found.
+ */
 router.get('/:id', asyncHandler(async (req, res) => {
     const deviceId = req.params.id
     const [devices] = await pool.query('SELECT * FROM devices WHERE id = ?', [deviceId])
@@ -58,7 +189,43 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
 }))
 
-
+/**
+ * @swagger
+ * /devices/{id}:
+ *   put:
+ *     summary: Update a device's information and/or thresholds
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The device ID.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               device_name:
+ *                 type: string
+ *                 example: "Main Entrance Camera (Updated)"
+ *               location:
+ *                 type: string
+ *                 example: "1st Floor, Main Lobby"
+ *               threshold:
+ *                 $ref: '#/components/schemas/Threshold'
+ *     responses:
+ *       200:
+ *         description: The updated device data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DeviceWithThreshold'
+ *       404:
+ *         description: Device not found.
+ */
 router.put('/:id', asyncHandler(async (req, res) => {
     const deviceId = req.params.id
     const { device_name, location, threshold } = req.body

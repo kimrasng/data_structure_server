@@ -24,6 +24,7 @@ CREATE TABLE crowd_data(
     device_id INT NOT NULL,
     headcount INT NOT NULL COMMENT "사람수",
     status ENUM('safe', 'normal', 'warning', 'danger') NOT NULL,
+    wifi_list JSON COMMENT "측정 시점의 wifi mac 주소 목록",
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT "측정 시각",
     FOREIGN KEY (device_id) REFERENCES devices(id)
 );
@@ -55,4 +56,25 @@ CREATE TABLE device_observations (
     FOREIGN KEY (device_id) REFERENCES devices(id),
     INDEX idx_device_time (device_id, observed_at),
     INDEX idx_tracked_time (tracked_device_id, observed_at)
+);
+
+CREATE TABLE alerts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id INT NOT NULL COMMENT '알림이 발생한 디바이스',
+    crowd_data_id INT COMMENT '알림의 원인이 된 데이터',
+    alert_type VARCHAR(50) NOT NULL COMMENT '알림 종류 (e.g., density, mobility)',
+    level ENUM('warning', 'danger') NOT NULL COMMENT '알림 수준',
+    message VARCHAR(255) COMMENT '알림 메시지',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (device_id) REFERENCES devices(id),
+    FOREIGN KEY (crowd_data_id) REFERENCES crowd_data(id)
+);
+
+CREATE TABLE webhooks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id INT NOT NULL COMMENT '알림을 받을 디바이스',
+    url VARCHAR(2048) NOT NULL COMMENT '웹훅 URL',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (device_id) REFERENCES devices(id),
+    UNIQUE KEY uniq_device_url (device_id, url(255))
 );
