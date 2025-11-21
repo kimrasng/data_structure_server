@@ -2,7 +2,7 @@ services:
   ds-server:
     build: .
     ports:
-      - "4000:3000"
+      - "3000:3000"
     command: npm start
     restart: unless-stopped
     depends_on:

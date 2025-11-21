@@ -140,7 +140,7 @@ router.post('/', asyncHandler(async (req, res) => {
 
     const t = threshold || {}
     await pool.query(
-      'INSERT INTO threshold (id, safe, normal, warning, danger) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO threshold (device_id, safe, normal, warning, danger) VALUES (?, ?, ?, ?, ?)',
       [deviceId, t.safe || 30, t.normal || 50, t.warning || 80, t.danger || 120]
     )
 
@@ -181,7 +181,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
     const device = devices[0]
 
-    const [thresholds] = await pool.query('SELECT * FROM threshold WHERE id = ?', [deviceId])
+    const [thresholds] = await pool.query('SELECT * FROM threshold WHERE device_id = ?', [deviceId])
 
     const threshold = thresholds[0] || {}
 
@@ -255,7 +255,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
 
     if (hasThresholdFields) {
         const [thRows] = await pool.query(
-            'SELECT * FROM threshold WHERE id = ?',
+            'SELECT * FROM threshold WHERE device_id = ?',
             [deviceId]
         )
         const existing = thRows[0] || {}
@@ -267,12 +267,12 @@ router.put('/:id', asyncHandler(async (req, res) => {
 
         if (thRows.length === 0) {
             await pool.query(
-                'INSERT INTO threshold (id, safe, normal, warning, danger) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO threshold (device_id, safe, normal, warning, danger) VALUES (?, ?, ?, ?, ?)',
                 [deviceId, safe, normal, warning, danger]
             )
         } else {
             await pool.query(
-                'UPDATE threshold SET safe = ?, normal = ?, warning = ?, danger = ? WHERE id = ?',
+                'UPDATE threshold SET safe = ?, normal = ?, warning = ?, danger = ? WHERE device_id = ?',
                 [safe, normal, warning, danger, deviceId]
             )
         }
@@ -283,7 +283,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
         [deviceId]
     )
     const [updatedThreshold] = await pool.query(
-        'SELECT safe, normal, warning, danger FROM threshold WHERE id = ?',
+        'SELECT safe, normal, warning, danger FROM threshold WHERE device_id = ?',
         [deviceId]
     )
 

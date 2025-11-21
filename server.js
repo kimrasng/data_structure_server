@@ -3,11 +3,13 @@ const app = express()
 const port = 3000
 const swaggerUi = require('swagger-ui-express')
 const swaggerJsdoc = require('swagger-jsdoc')
+const cors = require('cors')
 
 module.exports = fn => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next)
 }
 
+app.use(cors())
 app.use(express.json())
 
 // Swagger setup
