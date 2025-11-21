@@ -36,6 +36,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 app.use('/devices', require('./src/router/devices'))
 app.use('/crowd_data', require('./src/router/crowd_data'))
 app.use('/webhooks', require('./src/router/webhooks'))
+app.use('/mobility', require('./src/router/mobility'))
 
 app.use((err, req, res, next) => {
     console.error('ERROR:', err)

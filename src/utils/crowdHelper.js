@@ -27,13 +27,13 @@ const analyzeMobility = (listA, listB) => {
     const union = new Set([...setA, ...setB])
 
     if (union.size === 0) {
-        return { jaccard: 1, mobility: 0 }
+        return { jaccard: 1, mobility: 0, intersection, union }
     }
 
     const jaccard = intersection.size / union.size
     const mobility = 1 - jaccard
 
-    return { jaccard, mobility }
+    return { jaccard, mobility, intersection, union }
 }
 
 module.exports = {
